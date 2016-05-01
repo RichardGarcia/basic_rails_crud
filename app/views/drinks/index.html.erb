@@ -1,0 +1,10 @@
+<!-- index.html.erb -->
+
+<p><%= link_to 'Add drink', new_drink_path %></p>
+
+<% @drinks.each do | drink |%>
+  <p><strong><%= link_to drink.name, drink_path(drink) %> - <%= drink.size %></strong> |
+  <%= link_to 'Edit', edit_drink_path(drink) %> |
+  <%= link_to 'Delete', drink, method: :delete %></p>
+<% end %>
+

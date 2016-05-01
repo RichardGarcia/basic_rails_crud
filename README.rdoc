@@ -1,0 +1,206 @@
+myFlow...
+
+- create new app_name
+- generate model
+  - model name can be pluralize? (like: Drinks - Drink, Posts - post, Articles - Article)
+  - rails g model Model-name-uppercase (attributes? --> name:type)
+    - ex: rails g model Drink name:string size:string
+
+      - create --> db/migrate/20160501080429_create_drinks.rb
+      - create -->app/models/drink.rb
+
+  - rake db:migrate
+
+  - rails g controller drinks <-- controller name is plural, lowercase?
+  - more files are created..
+
+      - create  app/controllers/drinks_controller.rb
+      - invoke  erb
+      - create  app/views/drinks
+      - invoke  test_unit
+      - create  test/controllers/drinks_controller_test.rb
+      - invoke  helper
+      - create  app/helpers/drinks_helper.rb
+      - invoke  test_unit
+      - invoke  assets
+      - invoke  coffee
+      - create  app/assets/javascripts/drinks.coffee
+      - invoke  scss
+      - create  app/assets/stylesheets/drinks.scss
+
+  - add standard set of actions / methods
+    - CRUD
+
+  - Routes
+    - map the actions/methods..
+
+    - resources :drinks
+    - to check the it --> rake routes
+
+  - Views
+    - create view page (for certain actions??)
+      - index.html.erb
+      - show.html.erb
+      - edit.html.erb
+      - new.html.erb
+
+  - New
+    - create a form to add a drink
+    - use form builder (form_for)
+    - new.html.erb
+
+    ```
+    <%= form_for THE_OBJECT  do |f| %>
+
+    <% end %>
+    ```
+
+  - drinks_controller.rb
+    - define the "THE_OBJECT" from the controller
+    - use @ symbol to become a special "@variable", can travel bet the view and the controller?
+    - THE_OBJECT, the variable will contain the new instance of the class (drink) -->  @drink = Drink.new
+
+    ```
+    def new
+      @drink = Drink.new
+    end
+    ```
+
+    - then update form at new.html.erb
+
+    ```
+    <%= form_for @drink  do |f| %>
+      <%= f.label :name %><br />
+      <%= f.text_field :name %><br />
+
+      <%= f.label :size %><br />
+      <%= f.text_field :size %><br />
+
+      <%= f.submit %>
+      <!-- <%= f.submit 'add' %>  custom label -->
+    <% end %>
+    ```
+
+  - define a private method
+    allowed_params are name and size, others will be ignore?
+
+  ```
+  private
+    def allowed_params
+      params.require(:drink).permit(:name, :size)
+    end
+  ```
+
+  - then update create method
+  - "drinks_path" --> check rake routes
+
+  ```
+    @drink = Drink.new(allowed_params)
+
+    if @drink.save
+      redirect_to drinks_path
+    else
+      render 'new'
+    end
+  ```
+
+  - form is ok (needs to add rules), saving records then redirecting to index.html.erb
+  - update drink controller index method
+
+  ```
+    def index
+      @drinks = Drink.all
+    end
+  ```
+
+- update index.html.erb
+
+  ```
+  <% @drinks.each do | drink |%>
+    <p><strong><%= drink.name %> - <%= drink.size %></strong> | edit | delete |</p>
+  <% end %>
+  ```
+
+  - add EDIT link
+
+  ```
+  <% @drinks.each do | drink |%>
+    <p><strong><%= drink.name %> - <%= drink.size %></strong> | <%= link_to 'Edit', edit_drink_path(drink) %> | delete |</p>
+  <% end %>
+  ```
+
+  - <%= link_to 'Edit', edit_drink_path(drink) %>  --> link_to 'label', EDIT_PATH_controller(drink.id)
+
+- copy NEW form and update EDIT method in drinks_controller.rb
+  ```
+  def edit
+    @drink = Drink.find(params[:id])
+  end
+  ```
+  - this is same the form in new.html.erb (use partial, DRY)
+
+  ```
+  <%= form_for @drink  do |f| %>
+    <%= f.label :name %><br />
+    <%= f.text_field :name %><br />
+
+    <%= f.label :size %><br />
+    <%= f.text_field :size %><br />
+
+    <!-- <%= f.submit 'add' %>  custom label -->
+    <%= f.submit %>
+  <% end %>
+  ```
+
+- update "UPDATE" method in drinks_controller.rb
+```
+def update
+  @drink = Drink.find(params[:id])
+
+  if @drink.update_attributes(allowed_params)
+    redirect_to drinks_path
+  else
+    render 'new'
+  end
+end
+```
+
+- delete
+  - add delete link
+
+  ```
+  <% @drinks.each do | drink |%>
+    <p><strong><%= drink.name %> - <%= drink.size %></strong> |
+    <%= link_to 'Edit', edit_drink_path(drink) %> |
+    <%= link_to 'Delete', drink, method: :delete %></p>
+  <% end %>
+
+  ```
+
+  - update delete method in drinks_controller.rb
+
+  ```
+  def destroy
+    @drink = Drink.find(params[:id])
+    @drink.destroy
+    redirect_to drinks_path
+  end
+  ```
+
+- ooopppsss.. we need to add "DETAILS / SHOW" function
+
+  ```
+  def show
+    @drink = Drink.find(params[:id])
+  end
+  ```
+
+- update links...
+
+```
+<% @drinks.each do | drink |%>
+  <p><strong><%= link_to drink.name, drink_path(drink) %> - <%= drink.size %></strong> |
+  <%= link_to 'Edit', edit_drink_path(drink) %> |
+  <%= link_to 'Delete', drink, method: :delete %></p>
+<% end %>
+```

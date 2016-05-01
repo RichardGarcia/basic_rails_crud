@@ -1,0 +1,15 @@
+<!-- edit.html.erb -->
+
+<%= form_for @drink  do |f| %>
+  <%= f.label :name %><br />
+  <%= f.text_field :name %><br />
+
+  <%= f.label :size %><br />
+  <%= f.text_field :size %><br />
+
+  <!-- <%= f.submit 'add' %>  custom label -->
+  <%= f.submit %>
+<% end %>
+
+
+<p><%= link_to 'back to drink index page', drinks_path %></p>
